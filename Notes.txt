@@ -1,0 +1,12 @@
+Core Types 
+
+1. go to Old/New/app.ts
+
+JS / TS 
+
+the default type =  "I don't care type"
+
++ number => all numbers
++ string => "" `` ''
++ boolean => true / false 
+

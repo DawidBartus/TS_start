@@ -1,12 +1,184 @@
 Core Types 
 
-1. go to Old/New/app.ts
+JS - dynamic types - resolved at runtime / TS - static types - set during development
 
-JS / TS 
-
-the default type =  "I don't care type"
+the default type =  "I don't care type" = any
 
 + number => all numbers
 + string => "" `` ''
 + boolean => true / false 
++ object
++ array
 
+new types:
+
++ tuple -  fixed length and type array
++ enum - enum { NEW OLD }
+
++ any <= no specific type, you can use "any" type <= avoid it
+
+
++ union - it accepts more than one type
++ literal - 
+---
+
+TS object is different then JS object.
+
+JS:
+const person = {
+    age: 26,
+    name: 'David',
+};
+
+TS:
+const person: {
+    age: number;
+    name: string;
+}
+
+---
+
+JS
+const person: object = {
+    age: 26,
+    name: 'David',
+};
+
+TS object:
+const person: object
+
+---
+
+const person: {
+    name: string;
+    age: number;
+} = {
+    age: 26,
+    name: 'David',
+};
+
+TS object:
+const person: {
+    name: string;
+    age: number;
+}
+
+---
+
+! array
+
+JS:
+const person = {
+    age: 26,
+    name: 'David',
+    hobbies: ['coding', 'cooking', 'rollerblading'],
+};
+
+TS:
+const person: {
+    age: number;
+    name: string;
+    hobbies: string[];
+}
+
+---
+
+JS
+const person = {
+    hobbies: ['coding', 'cooking', 'rollerblading', 123],
+};
+
+TS
+const person: {
+    hobbies: (string | number)[];
+}
+
+---
+
+for (const hobby of person.hobbies){
+    console.log(hobby.toUpperCase())
+}
+
+TS automatically detect that hobby is a string so after . it suggest string methods! - that's awesome!
+
+---
+
+! tuple
+
+const person: {
+    role: [number, string]; 
+} = {
+    role: [2, 'developer'],
+};
+
+role: [number, string]; => i want to have a special array with exactly 
+two element and the first should be a number and a the second one should be a string!
+
+if we / person.role.push('future') / it is possible and TS accept it bc push is an exception in tuple.
+
+Will work:
+
+const person: {
+    age: number;
+    name: string;
+    hobbies: string[];
+    role: [number, string];
+} = {
+    age: 26,
+    name: 'David',
+    hobbies: ['coding', 'cooking', 'rollerblading'],
+    role: [2, 'developer'],
+};
+
+person.role.push('future');
+
+---
+
+person.role= []  <= throw an error 
+
+person.role = [3, "admin"] <= it will work coz we match the scheme 
+person.role = [3, "admin", 5] <= throw an error that only 2 elements are allowed
+
+---
+! Enum
+human friendly identifier
+
+enum Role {
+    ADMIN,
+    READ_ONLY,
+    AUTHOR,
+}
+
+extra:
+enum Role {
+    ADMIN = 5,
+    READ_ONLY = "toText",
+    AUTHOR = 250,
+}
+
+normally enum start from 0 but you can change it. you can assign different value to each element in enum
+
+
+enum Role {
+    ADMIN,
+    READ_ONLY,
+    AUTHOR,
+}
+
+const person = {
+    role: Role.ADMIN,
+};
+
+if (person.role === Role.ADMIN) {
+    console.log(`${person.name} is Admin`);
+}
+
+we can use enum that way: Role.ADMIN
+
+---
+! union
+
+const combine = (input1: number | string, input2: number | string) => {}
+
+union type helps when we can accept more than one type. 
+it helps but also can complicate function is TS throws an error

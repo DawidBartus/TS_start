@@ -9,6 +9,11 @@ the default type =  "I don't care type" = any
 + boolean => true / false 
 + object
 + array
++ undefined
++ void
++ Function
++ unknown 
++ never
 
 new types:
 
@@ -19,7 +24,7 @@ new types:
 
 
 + union - it accepts more than one type
-+ literal - 
++ literal - we can assign a value which we want to use
 ---
 
 TS object is different then JS object.
@@ -182,3 +187,54 @@ const combine = (input1: number | string, input2: number | string) => {}
 
 union type helps when we can accept more than one type. 
 it helps but also can complicate function is TS throws an error
+
+---
+! literal types
+
+resultConversion: 'as-number' | 'as-string'
+
+we assign an union type to a resultConversion as a literal type
+so we want to use string, but a specific one
+in this case we use "as-number" string or "as-string" string 
+
+in this case TS will help to find a typo or throw an error if we use different string! - its very helpful 
+
+---
+! type aliases
+
+great option if someone use the same types couple of times
+
+type Combinable = number | string;
+type ConversionDescriptor = 'as-number' | 'as-string';
+
+const combine = (
+    input1: Combinable,
+    input2: Combinable,
+    resultConversion: ConversionDescriptor
+) => {
+    return input1 + input2
+};
+
+This way we can save time and space in code. It's easier to manage.
+
+---
+! Types & "void"
+
+void type => when nothing is return (so if we log something for example) 
+
+Function => if we store function in other value
+
+let combineValues: (a: number, b: number) => number;
+combineValues = addN;
+
+---
+! unknown
+
+we can store any value there and we don't get error
+
+unknown needs extra check if you want to assign a value to variable with type unknown <= good to know!
+
+---
+! never
+
+never type never return a value - 

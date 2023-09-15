@@ -3,7 +3,7 @@
 type Combinable = number | string;
 type ConversionDescriptor = 'as-number' | 'as-string';
 
-const combine = (
+const combineVal = (
     input1: Combinable,
     input2: Combinable,
     resultConversion: ConversionDescriptor
@@ -20,11 +20,11 @@ const combine = (
     return result;
 };
 
-const combineAges = combine(30, 56, 'as-number');
+const combineAges = combineVal(30, 56, 'as-number');
 console.log(combineAges);
 
-const combineStringAges = combine('30', '56', 'as-number');
+const combineStringAges = combineVal('30', '56', 'as-number');
 console.log(combineStringAges);
 
-const combineNames = combine('Olek', 'Annabelle', 'as-string');
+const combineNames = combineVal('Olek', 'Annabelle', 'as-string');
 console.log(combineNames);

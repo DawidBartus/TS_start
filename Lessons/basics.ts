@@ -13,7 +13,7 @@ const add = (
 
 const number1 = 5;
 const number2 = 2.3;
-let printResult = true;
+let printResultT = true;
 const resultPhrase = 'Result is:';
 
-console.log('output: ', add(number1, number2, printResult, resultPhrase));
+console.log('output: ', add(number1, number2, printResultT, resultPhrase));

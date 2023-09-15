@@ -1,0 +1,19 @@
+Settings:
+
+extra:
+"exclude": [] // if you don't want to exclude a file 
+
+**/*.dev.ts - if we you don't want to compile a dev documents in the project
+
+"node_modules" - add this to make compile faster - coz if the file in node_modules has a TS file it will compile it and we don't want it! => Its exclude by default
+
+"include": ["index.ts"]
+
+if you want to include a file, but if you set up the include you need to update the file that you want to include by hand
+
+TS compile files: include - exclude => if you set file in both, the file won't be compile!
+
+Lib - specifies which default object and function TS knows - e.g working with a DOM
+if Lib isn't set, it takes info from JS version from target 
+
+jsx - helps with react project!

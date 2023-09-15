@@ -9,7 +9,7 @@ const combine = (input1: number | string, input2: number | string) => {
     return result;
 };
 
-const combineAges = combine(30, 56);
-console.log(combineAges);
-const combineNames = combine('Olek', 'Annabelle');
-console.log(combineNames);
+const combineAgesS = combine(30, 56);
+console.log(combineAgesS);
+const combineNamesS = combine('Olek', 'Annabelle');
+console.log(combineAgesS);

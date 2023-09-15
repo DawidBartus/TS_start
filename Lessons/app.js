@@ -1,12 +1,13 @@
-var userInput;
-var userName;
+"use strict";
+let userInput;
+let userName;
 userInput = 5;
 userInput = 'Max';
 // unknown needs extra check
 if (typeof userInput === 'string') {
     userName = userInput;
 }
-var generateError = function (message, code) {
+const generateError = (message, code) => {
     throw { message: message, errorCode: code };
 };
-generateError('An error', 500);
+generateError('An error occurred', 500);

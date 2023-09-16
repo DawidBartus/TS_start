@@ -17,3 +17,16 @@ Lib - specifies which default object and function TS knows - e.g working with a 
 if Lib isn't set, it takes info from JS version from target 
 
 jsx - helps with react project!
+
+"sourceMap": true, => helps with debugging 
+
+outDir \ => where the created files should be saved
+rootDir \=> specifies the root path 
+removeComment => removes comments from root files 
+noImplicitAny=> we have to be clear with our values - so declare a type 
+
+[!]
+Intersection Types
+it helps us combine other types 
+
+type guard => helps to verifies the type of value (e.g typeof)

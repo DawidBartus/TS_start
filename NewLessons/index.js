@@ -3,7 +3,6 @@ const e1 = {
     name: 'Seba',
     privileges: ['praca zdalnie'],
 };
-// type guard
 const logDetails = (emp) => {
     console.log(emp.name);
     if ('startDate' in emp) {
@@ -34,7 +33,6 @@ const useVehicle = (vehicle) => {
     if ('loadCargo' in vehicle) {
         vehicle.loadCargo(1000);
     }
-    // does vehicle was created based on Truck
     if (vehicle instanceof Truck) {
         vehicle.loadCargo(1000);
     }

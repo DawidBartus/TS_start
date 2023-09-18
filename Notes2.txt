@@ -30,3 +30,10 @@ Intersection Types
 it helps us combine other types 
 
 type guard => helps to verifies the type of value (e.g typeof)
+
+what are generic?
+<T>
+they help you to get more accurate info about the value 
+that you return and better support if you do something with this value
+
+Constraints

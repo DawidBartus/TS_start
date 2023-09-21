@@ -86,3 +86,58 @@ __decorate([
 const p = new Printer();
 const button = document.getElementById('button');
 button.addEventListener('click', p.showMessage);
+const registeredValidators = {};
+function Required(target, propName) {
+    registeredValidators[target.constructor.name] = {
+        [propName]: ['required'],
+    };
+}
+function PositiveNum(target, propName) {
+    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propName]: ['required'] });
+}
+function validate(obj) {
+    const objValidatorConfig = registeredValidators[obj.constructor.name];
+    if (!objValidatorConfig) {
+        return true;
+    }
+    let isValid = true;
+    for (const prop in objValidatorConfig) {
+        for (const validator of objValidatorConfig[prop]) {
+            switch (validator) {
+                case 'required':
+                    isValid = isValid && !!obj[prop];
+                    break;
+                case 'positive':
+                    isValid = isValid && obj[prop] > 0;
+                    break;
+            }
+        }
+    }
+    return isValid;
+}
+class Course {
+    constructor(t, p) {
+        this.price = p;
+        this.title = t;
+    }
+}
+__decorate([
+    Required
+], Course.prototype, "title", void 0);
+__decorate([
+    PositiveNum
+], Course.prototype, "price", void 0);
+const courseForm = document.getElementById('course');
+courseForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const titleEL = document.getElementById('title');
+    const priceEl = document.getElementById('price');
+    const title = titleEL.value;
+    const price = +priceEl.value;
+    const createdCourse = new Course(title, price);
+    if (!validate(createdCourse)) {
+        alert('Invalid input');
+        return;
+    }
+    console.log(createdCourse);
+});

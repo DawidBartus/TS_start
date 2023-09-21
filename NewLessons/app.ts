@@ -153,53 +153,71 @@ button.addEventListener('click', p.showMessage);
 
 // Validation with decorators
 
-// interface ValidatorConfig {
-//     [property: string]: {
-//         [validatableProp: string]: string[];
-//     };
-// }
+interface ValidatorConfig {
+    [property: string]: {
+        [validatableProp: string]: string[];
+    };
+}
 
-// const registeredValidators: ValidatorConfig = {};
+const registeredValidators: ValidatorConfig = {};
 
-// function Required(target: any, propName: string) {
-//     registeredValidators[target.constructor.name] = {
-//         [propName]: ['required'],
-//     };
-// }
-// function PositiveNum(target: any, propName: string) {
-//     registeredValidators[target.constructor.name] = {
-//         [propName]: ['required'],
-//     };
-// }
+function Required(target: any, propName: string) {
+    registeredValidators[target.constructor.name] = {
+        [propName]: ['required'],
+    };
+}
+function PositiveNum(target: any, propName: string) {
+    registeredValidators[target.constructor.name] = {
+        ...registeredValidators[target.constructor.name],
+        [propName]: ['required'],
+    };
+}
 
-// function validate(obj: object) {
+function validate(obj: any) {
+    const objValidatorConfig = registeredValidators[obj.constructor.name];
+    if (!objValidatorConfig) {
+        return true;
+    }
+    let isValid = true;
+    for (const prop in objValidatorConfig) {
+        for (const validator of objValidatorConfig[prop]) {
+            switch (validator) {
+                case 'required':
+                    isValid = isValid && !!obj[prop];
+                    break;
+                case 'positive':
+                    isValid = isValid && obj[prop] > 0;
+                    break;
+            }
+        }
+    }
+    return isValid;
+}
 
-// }
+class Course {
+    @Required
+    title: string;
+    @PositiveNum
+    price: number;
+    constructor(t: string, p: number) {
+        this.price = p;
+        this.title = t;
+    }
+}
 
-// class Course {
-//     @Required
-//     title: string;
-//     @PositiveNum
-//     price: number;
-//     constructor(t: string, p: number) {
-//         this.price = p;
-//         this.title = t;
-//     }
-// }
+const courseForm = document.getElementById('course')!;
 
-// const courseForm = document.getElementById('course')!;
+courseForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const titleEL = document.getElementById('title') as HTMLInputElement;
+    const priceEl = document.getElementById('price') as HTMLInputElement;
+    const title = titleEL.value;
+    const price = +priceEl.value;
+    const createdCourse = new Course(title, price);
 
-// courseForm.addEventListener('submit', (event) => {
-//     event.preventDefault();
-//     const titleEL = document.getElementById('title') as HTMLInputElement;
-//     const priceEl = document.getElementById('price') as HTMLInputElement;
-//     const title = titleEL.value;
-//     const price = +priceEl.value;
-//     const createdCourse = new Course(title, price);
-
-//     if (!validate(createdCourse)) {
-//         alert('Invalid input');
-//         return;
-//     }
-//     console.log(createdCourse);
-// });
+    if (!validate(createdCourse)) {
+        alert('Invalid input');
+        return;
+    }
+    console.log(createdCourse);
+});

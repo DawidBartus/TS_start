@@ -28,6 +28,30 @@ loadForm();
 
 type PageList = 'active' | 'finished';
 
+const dragOver = (e: DragEvent) => {
+    if (e.dataTransfer) {
+        e.preventDefault();
+    }
+};
+
+const dragLeave = (e: DragEvent) => {
+    const listEl = document.querySelector('ul')!;
+    listEl.classList.remove('droppable');
+};
+// ends here < ---
+const dragDrop = (e: DragEvent) => {};
+
+const dragOver2 = (e: DragEvent) => {
+    if (e.dataTransfer && e.dataTransfer.types[0] === 'text/plain') {
+        e.preventDefault();
+        const targetElement = e.target as HTMLElement;
+        if (targetElement) {
+            const listEl = document.getElementById(targetElement.id)!;
+            listEl.classList.add('droppable');
+        }
+    }
+};
+
 const renderList = (listName: PageList): void => {
     listContent = document.importNode(listTemplate.content, true);
     listSection = listContent.firstElementChild as HTMLElement;
@@ -38,6 +62,10 @@ const renderList = (listName: PageList): void => {
         'h2'
     )!.textContent = `${listName.toUpperCase()} PROJECTS`;
     listSection.querySelector('ul')!.id = `${listName}-projects-list`;
+
+    listSection.addEventListener('dragover', (e) => dragOver2(e));
+    listSection.addEventListener('dragleave', (e) => dragLeave(e));
+    listSection.addEventListener('drop', (e) => dragDrop(e));
 
     console.log(`${listName} project list load`);
 };
@@ -125,6 +153,7 @@ const formValidate = (dataToValidate: Validate): boolean => {
     }
     return isValid;
 };
+
 interface Post {
     title: string;
     description: string;
@@ -132,49 +161,65 @@ interface Post {
     key?: string | number;
 }
 
-const createLiElement = (postObject: Post): HTMLParagraphElement[] => {
-    const paragraph = Object.keys(postObject).map((key) => {
-        const newParagraph = document.createElement('p');
-        const value = postObject[key as keyof Post];
-        newParagraph.textContent = `${key}: ${value?.toString()}`;
-
-        return newParagraph;
-    });
-
-    return paragraph;
+const getProperNumber = (numberOfPeople: number): string => {
+    if (numberOfPeople === 1) {
+        return `1 person`;
+    } else {
+        return `${numberOfPeople} persons`;
+    }
 };
 
-const saveInput = ({ title, description, people }: Post) => {
-    const listInnerParagraph = createLiElement({ title, description, people });
+const dragStartHandler = (event: DragEvent, id: string) => {
+    console.log('drag start works');
+    event.dataTransfer!.setData('text/plain', id);
+    event.dataTransfer!.effectAllowed = 'move';
+};
+
+const createLiElement = (postObject: Post): HTMLLIElement => {
     const id = Math.random().toString();
     const newListElement = document.createElement('li');
     newListElement.id = id;
 
-    listInnerParagraph.forEach((paragraph) =>
-        newListElement.appendChild(paragraph)
-    );
+    const header = document.createElement('h2');
+    const secondHeader = document.createElement('h3');
+    const paragraph = document.createElement('p');
 
-    document
-        .getElementById('active-projects-list')!
-        .appendChild(newListElement);
-    newListElement.addEventListener('click', (e: MouseEvent) =>
-        changeProjectTarget(e)
+    header.textContent = `title: ${postObject['title' as keyof Post]}`;
+    secondHeader.textContent = getProperNumber(postObject['people']);
+    paragraph.textContent = `description: ${
+        postObject['description' as keyof Post]
+    }`;
+
+    [header, secondHeader, paragraph].forEach((elem) => {
+        newListElement.appendChild(elem);
+    });
+
+    return newListElement;
+};
+
+const saveInput = ({ title, description, people }: Post) => {
+    const listElement = createLiElement({ title, description, people });
+
+    document.getElementById('active-projects-list')!.appendChild(listElement);
+
+    listElement.addEventListener('dragstart', (e) =>
+        dragStartHandler(e, listElement.id)
     );
     console.log('works');
 };
 
-const changeProjectTarget = (e: MouseEvent) => {
-    const target = e.target as HTMLLIElement;
-    const parentTarget = target.parentElement as HTMLUListElement;
+// const changeProjectTarget = (e: MouseEvent) => {
+//     const target = e.target as HTMLLIElement;
+//     const parentTarget = target.parentElement as HTMLUListElement;
 
-    if (parentTarget.id === 'active-projects-list') {
-        parentTarget.removeChild(target);
-        document.getElementById('finished-projects-list')?.appendChild(target);
-    } else if (parentTarget.id === 'finished-projects-list') {
-        parentTarget.removeChild(target);
-        document.getElementById('active-projects-list')?.appendChild(target);
-    }
-};
+//     if (parentTarget.id === 'active-projects-list') {
+//         parentTarget.removeChild(target);
+//         document.getElementById('finished-projects-list')?.appendChild(target);
+//     } else if (parentTarget.id === 'finished-projects-list') {
+//         parentTarget.removeChild(target);
+//         document.getElementById('active-projects-list')?.appendChild(target);
+//     }
+// };
 
 const submitHandler = (e: Event) => {
     e.preventDefault();

@@ -17,6 +17,26 @@ const loadForm = () => {
     }
 };
 loadForm();
+const dragOver = (e) => {
+    if (e.dataTransfer) {
+        e.preventDefault();
+    }
+};
+const dragLeave = (e) => {
+    const listEl = document.querySelector('ul');
+    listEl.classList.remove('droppable');
+};
+const dragDrop = (e) => { };
+const dragOver2 = (e) => {
+    if (e.dataTransfer && e.dataTransfer.types[0] === 'text/plain') {
+        e.preventDefault();
+        const targetElement = e.target;
+        if (targetElement) {
+            const listEl = document.getElementById(targetElement.id);
+            listEl.classList.add('droppable');
+        }
+    }
+};
 const renderList = (listName) => {
     listContent = document.importNode(listTemplate.content, true);
     listSection = listContent.firstElementChild;
@@ -24,6 +44,9 @@ const renderList = (listName) => {
     insertElement('beforeend', listSection);
     listSection.querySelector('h2').textContent = `${listName.toUpperCase()} PROJECTS`;
     listSection.querySelector('ul').id = `${listName}-projects-list`;
+    listSection.addEventListener('dragover', (e) => dragOver2(e));
+    listSection.addEventListener('dragleave', (e) => dragLeave(e));
+    listSection.addEventListener('drop', (e) => dragDrop(e));
     console.log(`${listName} project list load`);
 };
 renderList('active');
@@ -84,39 +107,39 @@ const formValidate = (dataToValidate) => {
     }
     return isValid;
 };
-const createLiElement = (postObject) => {
-    const paragraph = Object.keys(postObject).map((key) => {
-        const newParagraph = document.createElement('p');
-        const value = postObject[key];
-        newParagraph.textContent = `${key}: ${value === null || value === void 0 ? void 0 : value.toString()}`;
-        return newParagraph;
-    });
-    return paragraph;
+const getProperNumber = (numberOfPeople) => {
+    if (numberOfPeople === 1) {
+        return `1 person`;
+    }
+    else {
+        return `${numberOfPeople} persons`;
+    }
 };
-const saveInput = ({ title, description, people }) => {
-    const listInnerParagraph = createLiElement({ title, description, people });
+const dragStartHandler = (event, id) => {
+    console.log('drag start works');
+    event.dataTransfer.setData('text/plain', id);
+    event.dataTransfer.effectAllowed = 'move';
+};
+const createLiElement = (postObject) => {
     const id = Math.random().toString();
     const newListElement = document.createElement('li');
     newListElement.id = id;
-    listInnerParagraph.forEach((paragraph) => newListElement.appendChild(paragraph));
-    document
-        .getElementById('active-projects-list')
-        .appendChild(newListElement);
-    newListElement.addEventListener('click', (e) => changeProjectTarget(e));
-    console.log('works');
+    const header = document.createElement('h2');
+    const secondHeader = document.createElement('h3');
+    const paragraph = document.createElement('p');
+    header.textContent = `title: ${postObject['title']}`;
+    secondHeader.textContent = getProperNumber(postObject['people']);
+    paragraph.textContent = `description: ${postObject['description']}`;
+    [header, secondHeader, paragraph].forEach((elem) => {
+        newListElement.appendChild(elem);
+    });
+    return newListElement;
 };
-const changeProjectTarget = (e) => {
-    var _a, _b;
-    const target = e.target;
-    const parentTarget = target.parentElement;
-    if (parentTarget.id === 'active-projects-list') {
-        parentTarget.removeChild(target);
-        (_a = document.getElementById('finished-projects-list')) === null || _a === void 0 ? void 0 : _a.appendChild(target);
-    }
-    else if (parentTarget.id === 'finished-projects-list') {
-        parentTarget.removeChild(target);
-        (_b = document.getElementById('active-projects-list')) === null || _b === void 0 ? void 0 : _b.appendChild(target);
-    }
+const saveInput = ({ title, description, people }) => {
+    const listElement = createLiElement({ title, description, people });
+    document.getElementById('active-projects-list').appendChild(listElement);
+    listElement.addEventListener('dragstart', (e) => dragStartHandler(e, listElement.id));
+    console.log('works');
 };
 const submitHandler = (e) => {
     e.preventDefault();

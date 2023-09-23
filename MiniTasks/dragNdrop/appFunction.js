@@ -84,15 +84,26 @@ const formValidate = (dataToValidate) => {
     }
     return isValid;
 };
-const saveInput = (title, description, numOfPeople) => {
+const createLiElement = (postObject) => {
+    const paragraph = Object.keys(postObject).map((key) => {
+        const newParagraph = document.createElement('p');
+        const value = postObject[key];
+        newParagraph.textContent = `${key}: ${value === null || value === void 0 ? void 0 : value.toString()}`;
+        return newParagraph;
+    });
+    return paragraph;
+};
+const saveInput = ({ title, description, people }) => {
+    const listInnerParagraph = createLiElement({ title, description, people });
     const id = Math.random().toString();
     const newListElement = document.createElement('li');
-    newListElement.textContent = title;
     newListElement.id = id;
+    listInnerParagraph.forEach((paragraph) => newListElement.appendChild(paragraph));
     document
         .getElementById('active-projects-list')
         .appendChild(newListElement);
     newListElement.addEventListener('click', (e) => changeProjectTarget(e));
+    console.log('works');
 };
 const changeProjectTarget = (e) => {
     var _a, _b;
@@ -112,7 +123,7 @@ const submitHandler = (e) => {
     const userInfo = gatherUserInput();
     if (Array.isArray(userInfo)) {
         const [title, description, people] = userInfo;
-        saveInput(title, description, people);
+        saveInput({ title, description, people });
         htmlFormElement.reset();
     }
 };

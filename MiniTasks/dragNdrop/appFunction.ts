@@ -13,11 +13,11 @@ const listTemplate = document.getElementById(
 let listContent;
 let listSection: HTMLElement;
 
-const insertElement = (where: any, listSection: HTMLElement) => {
+const insertElement = (where: any, listSection: HTMLElement): void => {
     hostElement.insertAdjacentElement(where, listSection);
 };
 
-const loadForm = () => {
+const loadForm = (): void => {
     if (htmlFormElement && hostElement) {
         htmlFormElement.id = 'user-input';
         insertElement('afterbegin', htmlFormElement);
@@ -26,7 +26,9 @@ const loadForm = () => {
 };
 loadForm();
 
-const renderList = (listName: string) => {
+type PageList = 'active' | 'finished';
+
+const renderList = (listName: PageList): void => {
     listContent = document.importNode(listTemplate.content, true);
     listSection = listContent.firstElementChild as HTMLElement;
     listSection.id = `${listName}-projects`;
@@ -89,7 +91,7 @@ const gatherUserInput = (): [string, string, number] | void => {
     }
 };
 
-const formValidate = (dataToValidate: Validate) => {
+const formValidate = (dataToValidate: Validate): boolean => {
     let isValid = true;
     if (dataToValidate.required) {
         isValid =
@@ -123,18 +125,42 @@ const formValidate = (dataToValidate: Validate) => {
     }
     return isValid;
 };
+interface Post {
+    title: string;
+    description: string;
+    people: number;
+    key?: string | number;
+}
 
-const saveInput = (title: string, description: string, numOfPeople: number) => {
+const createLiElement = (postObject: Post): HTMLParagraphElement[] => {
+    const paragraph = Object.keys(postObject).map((key) => {
+        const newParagraph = document.createElement('p');
+        const value = postObject[key as keyof Post];
+        newParagraph.textContent = `${key}: ${value?.toString()}`;
+
+        return newParagraph;
+    });
+
+    return paragraph;
+};
+
+const saveInput = ({ title, description, people }: Post) => {
+    const listInnerParagraph = createLiElement({ title, description, people });
     const id = Math.random().toString();
     const newListElement = document.createElement('li');
-    newListElement.textContent = title;
     newListElement.id = id;
+
+    listInnerParagraph.forEach((paragraph) =>
+        newListElement.appendChild(paragraph)
+    );
+
     document
         .getElementById('active-projects-list')!
         .appendChild(newListElement);
     newListElement.addEventListener('click', (e: MouseEvent) =>
         changeProjectTarget(e)
     );
+    console.log('works');
 };
 
 const changeProjectTarget = (e: MouseEvent) => {
@@ -156,7 +182,7 @@ const submitHandler = (e: Event) => {
 
     if (Array.isArray(userInfo)) {
         const [title, description, people] = userInfo;
-        saveInput(title, description, people);
+        saveInput({ title, description, people });
         htmlFormElement.reset();
     }
 };

@@ -17,26 +17,8 @@ const loadForm = () => {
     }
 };
 loadForm();
-const dragOver = (e) => {
-    if (e.dataTransfer) {
-        e.preventDefault();
-    }
-};
-const dragLeave = (e) => {
-    const listEl = document.querySelector('ul');
-    listEl.classList.remove('droppable');
-};
-const dragDrop = (e) => { };
-const dragOver2 = (e) => {
-    if (e.dataTransfer && e.dataTransfer.types[0] === 'text/plain') {
-        e.preventDefault();
-        const targetElement = e.target;
-        if (targetElement) {
-            const listEl = document.getElementById(targetElement.id);
-            listEl.classList.add('droppable');
-        }
-    }
-};
+let activeList = [];
+let finishedList = [];
 const renderList = (listName) => {
     listContent = document.importNode(listTemplate.content, true);
     listSection = listContent.firstElementChild;
@@ -44,7 +26,7 @@ const renderList = (listName) => {
     insertElement('beforeend', listSection);
     listSection.querySelector('h2').textContent = `${listName.toUpperCase()} PROJECTS`;
     listSection.querySelector('ul').id = `${listName}-projects-list`;
-    listSection.addEventListener('dragover', (e) => dragOver2(e));
+    listSection.addEventListener('dragover', (e) => dragOver(e));
     listSection.addEventListener('dragleave', (e) => dragLeave(e));
     listSection.addEventListener('drop', (e) => dragDrop(e));
     console.log(`${listName} project list load`);
@@ -115,15 +97,10 @@ const getProperNumber = (numberOfPeople) => {
         return `${numberOfPeople} persons`;
     }
 };
-const dragStartHandler = (event, id) => {
-    console.log('drag start works');
-    event.dataTransfer.setData('text/plain', id);
-    event.dataTransfer.effectAllowed = 'move';
-};
 const createLiElement = (postObject) => {
-    const id = Math.random().toString();
     const newListElement = document.createElement('li');
-    newListElement.id = id;
+    newListElement.draggable = true;
+    newListElement.id = postObject.id;
     const header = document.createElement('h2');
     const secondHeader = document.createElement('h3');
     const paragraph = document.createElement('p');
@@ -135,19 +112,98 @@ const createLiElement = (postObject) => {
     });
     return newListElement;
 };
-const saveInput = ({ title, description, people }) => {
-    const listElement = createLiElement({ title, description, people });
-    document.getElementById('active-projects-list').appendChild(listElement);
-    listElement.addEventListener('dragstart', (e) => dragStartHandler(e, listElement.id));
-    console.log('works');
+const renderProjectItem = () => {
+    const projectActiveList = document.getElementById(`active-projects-list`);
+    const projectFinishedList = document.getElementById(`finished-projects-list`);
+    const activeElements = activeList.map((element) => createLiElement(element));
+    const finishedElements = finishedList.map((element) => createLiElement(element));
+    projectActiveList.innerHTML = '';
+    projectFinishedList.innerHTML = '';
+    activeElements.forEach((elem) => {
+        projectActiveList.appendChild(elem);
+        elem.addEventListener('dragstart', (e) => dragStartHandler(e, elem.id));
+    });
+    finishedElements.forEach((elem) => {
+        projectFinishedList.appendChild(elem);
+        elem.addEventListener('dragstart', (e) => dragStartHandler(e, elem.id));
+    });
+};
+const changeProjectStatus = (obj, newList) => {
+    if (obj.prjStatus === 'active' && newList === 'finished-projects-list') {
+        obj.prjStatus = 'finished';
+        activeList = activeList.filter((elem) => elem.prjStatus === 'active');
+        finishedList.push(obj);
+        renderProjectItem();
+    }
+    else if (obj.prjStatus === 'finished' &&
+        newList === 'active-projects-list') {
+        obj.prjStatus = 'active';
+        finishedList = finishedList.filter((elem) => elem.prjStatus === 'finished');
+        activeList.push(obj);
+        renderProjectItem();
+    }
+    return;
 };
 const submitHandler = (e) => {
     e.preventDefault();
     const userInfo = gatherUserInput();
     if (Array.isArray(userInfo)) {
         const [title, description, people] = userInfo;
-        saveInput({ title, description, people });
+        const id = Math.random().toString();
+        activeList.push({
+            title,
+            description,
+            people,
+            prjStatus: 'active',
+            id,
+        });
+        renderProjectItem();
         htmlFormElement.reset();
     }
 };
 htmlFormElement.addEventListener('submit', submitHandler);
+const dragOver = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.types[0] === 'text/plain') {
+        const targetElement = e.target;
+        if (targetElement.id === 'finished-projects-list' ||
+            targetElement.id === 'active-projects-list') {
+            const listEl = document.getElementById(targetElement.id);
+            listEl.classList.add('droppable');
+        }
+    }
+};
+const dragLeave = (e) => {
+    const targetElement = e.target;
+    if (targetElement.id === 'finished-projects-list' ||
+        targetElement.id === 'active-projects-list') {
+        const listEl = document.getElementById(targetElement.id);
+        listEl.classList.remove('droppable');
+    }
+};
+const dragDrop = (e) => {
+    const targetElement = e.target;
+    const data = e.dataTransfer.getData('text/plain');
+    const foundActiveObj = activeList === null || activeList === void 0 ? void 0 : activeList.find((elem) => elem.id === data);
+    const foundFinishedObj = finishedList === null || finishedList === void 0 ? void 0 : finishedList.find((elem) => elem.id === data);
+    let obj;
+    if (foundActiveObj) {
+        obj = foundActiveObj;
+    }
+    if (foundFinishedObj) {
+        obj = foundFinishedObj;
+    }
+    if (obj) {
+        changeProjectStatus(obj, targetElement.id);
+    }
+};
+const dragStartHandler = (event, id) => {
+    event.dataTransfer.setData('text/plain', id);
+    event.dataTransfer.effectAllowed = 'move';
+};
+const lists = document.querySelectorAll('ul');
+lists.forEach((list) => {
+    list.addEventListener('dragover', dragOver);
+    list.addEventListener('dragleave', dragLeave);
+    list.addEventListener('drop', dragDrop);
+});
